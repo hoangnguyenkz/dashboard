@@ -1,393 +1,647 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TID Project Dashboard</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      background: #f1f5f9;
-      font-family: Arial, sans-serif;
-    }
+<title>TID Project Dashboard</title>
 
-    .card {
-      background: white;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    .status {
-      padding: 6px 12px;
-      border-radius: 999px;
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-    }
+<style>
 
-    .success { background: #22c55e; }
-    .danger { background: #ef4444; }
-    .warning { background: #f59e0b; }
-    .process { background: #3b82f6; }
-  </style>
+body{
+    background:#f1f5f9;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.card{
+    background:white;
+    border-radius:24px;
+    padding:24px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.status{
+    padding:6px 12px;
+    border-radius:999px;
+    color:white;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.success{
+    background:#22c55e;
+}
+
+.danger{
+    background:#ef4444;
+}
+
+.warning{
+    background:#f59e0b;
+}
+
+.process{
+    background:#3b82f6;
+}
+
+.loading{
+    text-align:center;
+    padding:40px;
+    color:#64748b;
+}
+
+.error{
+    text-align:center;
+    padding:40px;
+    color:#ef4444;
+    line-height:30px;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <div class="max-w-7xl mx-auto p-6 space-y-6">
 
-  <!-- HEADER -->
+    <!-- HEADER -->
 
-  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
-    <div>
-      <h1 class="text-4xl font-bold">
-        TID PROJECT DASHBOARD
-      </h1>
+        <div>
 
-      <p class="text-slate-500 mt-2">
-        Dashboard realtime đồng bộ Google Sheet
-      </p>
-    </div>
+            <h1 class="text-4xl font-bold">
+                TID PROJECT DASHBOARD
+            </h1>
 
-    <div class="card min-w-[260px]">
-      <div class="flex justify-between items-center mb-2">
-        <div class="text-sm text-slate-500">
-          Google Sheet Sync
+            <p class="text-slate-500 mt-2">
+                Dashboard realtime đồng bộ Google Sheet
+            </p>
+
         </div>
 
-        <button
-          onclick="loadData()"
-          class="bg-slate-100 hover:bg-slate-200 rounded-xl px-3 py-2"
-        >
-          🔄
-        </button>
-      </div>
+        <div class="card min-w-[260px]">
 
-      <div class="text-xl font-bold" id="today"></div>
+            <div class="flex justify-between items-center mb-2">
 
-      <div class="text-xs text-slate-400 mt-1">
-        Đồng bộ lần cuối: <span id="lastSync">--:--</span>
-      </div>
-    </div>
+                <div class="text-sm text-slate-500">
+                    Google Sheet Sync
+                </div>
 
-  </div>
+                <button
+                    onclick="loadData()"
+                    class="bg-slate-100 hover:bg-slate-200 rounded-xl px-3 py-2"
+                >
+                    🔄
+                </button>
 
-  <!-- KPI -->
+            </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="text-xl font-bold" id="today"></div>
 
-    <div class="card">
-      <div class="text-slate-500 text-sm">Tổng dự án</div>
-      <div class="text-4xl font-bold text-blue-600 mt-3" id="totalProjects">0</div>
-    </div>
+            <div class="text-xs text-slate-400 mt-1">
+                Đồng bộ lần cuối:
+                <span id="lastSync">--:--</span>
+            </div>
 
-    <div class="card">
-      <div class="text-slate-500 text-sm">Hoàn thành</div>
-      <div class="text-4xl font-bold text-green-600 mt-3" id="completedProjects">0</div>
-    </div>
-
-    <div class="card">
-      <div class="text-slate-500 text-sm">Quá hạn</div>
-      <div class="text-4xl font-bold text-red-600 mt-3" id="overdueProjects">0</div>
-    </div>
-
-    <div class="card">
-      <div class="text-slate-500 text-sm">Tiến độ TB</div>
-      <div class="text-4xl font-bold text-indigo-600 mt-3" id="avgProgress">0%</div>
-    </div>
-
-  </div>
-
-  <!-- CHART -->
-
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-    <div class="card">
-      <h2 class="text-2xl font-bold mb-6">
-        THỐNG KÊ TRẠNG THÁI
-      </h2>
-
-      <canvas id="statusChart"></canvas>
-    </div>
-
-    <div class="card">
-      <h2 class="text-2xl font-bold mb-6">
-        THỐNG KÊ NHÂN SỰ
-      </h2>
-
-      <canvas id="staffChart"></canvas>
-    </div>
-
-  </div>
-
-  <!-- TABLE -->
-
-  <div class="card overflow-hidden">
-
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-
-      <h2 class="text-2xl font-bold">
-        DANH SÁCH DỰ ÁN
-      </h2>
-
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Tìm dự án..."
-        class="border rounded-2xl px-4 py-3 w-full lg:w-72 outline-none focus:ring-2 focus:ring-blue-500"
-      />
+        </div>
 
     </div>
 
-    <div class="overflow-auto">
+    <!-- KPI -->
 
-      <table class="w-full min-w-[900px] text-sm">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
 
-        <thead>
-          <tr class="bg-slate-100 border-b">
-            <th class="text-left p-4">Dự án</th>
-            <th class="text-left p-4">Khách hàng</th>
-            <th class="text-left p-4">Nhân sự</th>
-            <th class="text-left p-4">Tiến độ</th>
-            <th class="text-left p-4">Deadline</th>
-            <th class="text-left p-4">Trạng thái</th>
-          </tr>
-        </thead>
+        <div class="card">
+            <div class="text-slate-500 text-sm">
+                Tổng dự án
+            </div>
 
-        <tbody id="projectTable">
-        </tbody>
+            <div
+                class="text-4xl font-bold text-blue-600 mt-3"
+                id="totalProjects"
+            >
+                0
+            </div>
+        </div>
 
-      </table>
+        <div class="card">
+            <div class="text-slate-500 text-sm">
+                Hoàn thành
+            </div>
+
+            <div
+                class="text-4xl font-bold text-green-600 mt-3"
+                id="completedProjects"
+            >
+                0
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="text-slate-500 text-sm">
+                Quá hạn
+            </div>
+
+            <div
+                class="text-4xl font-bold text-red-600 mt-3"
+                id="overdueProjects"
+            >
+                0
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="text-slate-500 text-sm">
+                Tiến độ TB
+            </div>
+
+            <div
+                class="text-4xl font-bold text-indigo-600 mt-3"
+                id="avgProgress"
+            >
+                0%
+            </div>
+        </div>
 
     </div>
 
-  </div>
+    <!-- CHART -->
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <div class="card">
+
+            <h2 class="text-2xl font-bold mb-6">
+                THỐNG KÊ TRẠNG THÁI
+            </h2>
+
+            <canvas id="statusChart"></canvas>
+
+        </div>
+
+        <div class="card">
+
+            <h2 class="text-2xl font-bold mb-6">
+                THỐNG KÊ NHÂN SỰ
+            </h2>
+
+            <canvas id="staffChart"></canvas>
+
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+
+    <div class="card overflow-hidden">
+
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+
+            <h2 class="text-2xl font-bold">
+                DANH SÁCH DỰ ÁN
+            </h2>
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Tìm dự án..."
+                class="border rounded-2xl px-4 py-3 w-full lg:w-72 outline-none focus:ring-2 focus:ring-blue-500"
+            >
+
+        </div>
+
+        <div class="overflow-auto">
+
+            <table class="w-full min-w-[900px] text-sm">
+
+                <thead>
+
+                    <tr class="bg-slate-100 border-b">
+
+                        <th class="text-left p-4">Dự án</th>
+                        <th class="text-left p-4">Khách hàng</th>
+                        <th class="text-left p-4">Nhân sự</th>
+                        <th class="text-left p-4">Tiến độ</th>
+                        <th class="text-left p-4">Deadline</th>
+                        <th class="text-left p-4">Trạng thái</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="projectTable">
+
+                    <tr>
+                        <td colspan="6" class="loading">
+                            Đang tải dữ liệu...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 
 <script>
 
+/* =========================
+   GOOGLE SHEET API
+========================= */
+
 const GOOGLE_SHEET_API =
-'https://opensheet.elk.sh/1Qefkd7Pev_QVd2ud3gcSB97JMdCPb5XBEkA-9Cfpg2Y/Sheet1';
+'https://opensheet.elk.sh/1Qefkd7Pev_QVd2ud3gcSB97JMdCPb5XBEkA-9Cfpg2Y/2026';
+
+/* =========================
+   VARIABLES
+========================= */
 
 let projects = [];
+
 let statusChart;
 let staffChart;
 
-async function loadData() {
+/* =========================
+   LOAD DATA
+========================= */
 
-  try {
+async function loadData(){
 
-    const response = await fetch(GOOGLE_SHEET_API);
-    const data = await response.json();
+    try{
 
-    projects = data.map(item => {
+        document.getElementById('projectTable').innerHTML = `
+            <tr>
+                <td colspan="6" class="loading">
+                    Đang tải dữ liệu...
+                </td>
+            </tr>
+        `;
 
-      const progress = Number(item.progress || 0);
+        const response = await fetch(GOOGLE_SHEET_API);
 
-      const today = new Date();
-      const deadline = new Date(item.deadline);
+        if(!response.ok){
+            throw new Error('Không thể kết nối Google Sheet');
+        }
 
-      let status = 'ĐANG THỰC HIỆN';
-      let className = 'process';
+        const data = await response.json();
 
-      if(progress >= 100){
-        status = 'HOÀN THÀNH';
-        className = 'success';
-      }
-      else if(deadline < today){
-        status = 'QUÁ HẠN';
-        className = 'danger';
-      }
-      else if(progress < 50){
-        status = 'NGUY CƠ TRỄ';
-        className = 'warning';
-      }
+        if(!Array.isArray(data)){
+            throw new Error('Dữ liệu không hợp lệ');
+        }
 
-      return {
-        id: item.id || Math.random(),
-        name: item.name || '-',
-        customer: item.customer || '-',
-        assignee: item.assignee || '-',
-        progress,
-        deadline: item.deadline || '-',
-        status,
-        className
-      };
+        if(data.length === 0){
 
-    });
+            document.getElementById('projectTable').innerHTML = `
+                <tr>
+                    <td colspan="6" class="error">
+                        Google Sheet chưa có dữ liệu
+                    </td>
+                </tr>
+            `;
 
-    renderDashboard();
+            return;
+        }
 
-    document.getElementById('lastSync').innerHTML =
-    new Date().toLocaleTimeString('vi-VN');
+        projects = data.map(item => {
 
-  }
-  catch(error){
-    console.error(error);
-  }
+            const progress = Number(item.progress || 0);
+
+            const today = new Date();
+
+            const deadline = new Date(item.deadline);
+
+            let status = 'ĐANG THỰC HIỆN';
+            let className = 'process';
+
+            if(progress >= 100){
+
+                status = 'HOÀN THÀNH';
+                className = 'success';
+
+            }
+            else if(deadline < today){
+
+                status = 'QUÁ HẠN';
+                className = 'danger';
+
+            }
+            else if(progress < 50){
+
+                status = 'NGUY CƠ TRỄ';
+                className = 'warning';
+
+            }
+
+            return {
+
+                id: item.id || Math.random(),
+
+                name: item.name || '-',
+
+                customer: item.customer || '-',
+
+                assignee: item.assignee || '-',
+
+                progress,
+
+                deadline: item.deadline || '-',
+
+                status,
+
+                className
+
+            };
+
+        });
+
+        renderDashboard();
+
+        document.getElementById('lastSync').innerHTML =
+        new Date().toLocaleTimeString('vi-VN');
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        document.getElementById('projectTable').innerHTML = `
+            <tr>
+                <td colspan="6" class="error">
+
+                    Không tải được dữ liệu Google Sheet
+
+                    <br><br>
+
+                    Kiểm tra lại:
+
+                    <br>
+
+                    1. Google Sheet đã Publish chưa
+
+                    <br>
+
+                    2. Tên tab có đúng là 2026 không
+
+                    <br>
+
+                    3. Có đúng tên cột không
+
+                </td>
+            </tr>
+        `;
+
+    }
 
 }
+
+/* =========================
+   RENDER DASHBOARD
+========================= */
 
 function renderDashboard(){
 
-  const table = document.getElementById('projectTable');
-  table.innerHTML = '';
+    const table =
+    document.getElementById('projectTable');
 
-  let completed = 0;
-  let overdue = 0;
-  let totalProgress = 0;
+    table.innerHTML = '';
 
-  const staffMap = {};
+    let completed = 0;
 
-  projects.forEach(project => {
+    let overdue = 0;
 
-    totalProgress += project.progress;
+    let totalProgress = 0;
 
-    if(project.status === 'HOÀN THÀNH') completed++;
-    if(project.status === 'QUÁ HẠN') overdue++;
+    const staffMap = {};
 
-    if(!staffMap[project.assignee]){
-      staffMap[project.assignee] = 0;
-    }
+    projects.forEach(project => {
 
-    staffMap[project.assignee]++;
+        totalProgress += project.progress;
 
-    table.innerHTML += `
+        if(project.status === 'HOÀN THÀNH'){
+            completed++;
+        }
 
-      <tr class="border-b hover:bg-slate-50">
+        if(project.status === 'QUÁ HẠN'){
+            overdue++;
+        }
 
-        <td class="p-4 font-semibold">${project.name}</td>
-        <td class="p-4">${project.customer}</td>
-        <td class="p-4">${project.assignee}</td>
+        if(!staffMap[project.assignee]){
+            staffMap[project.assignee] = 0;
+        }
 
-        <td class="p-4 w-72">
+        staffMap[project.assignee]++;
 
-          <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-            <div
-              class="bg-blue-500 h-full"
-              style="width:${project.progress}%"
-            ></div>
-          </div>
+        table.innerHTML += `
 
-          <div class="text-xs text-slate-500 mt-1">
-            ${project.progress}%
-          </div>
+            <tr class="border-b hover:bg-slate-50">
 
-        </td>
+                <td class="p-4 font-semibold">
+                    ${project.name}
+                </td>
 
-        <td class="p-4">${project.deadline}</td>
+                <td class="p-4">
+                    ${project.customer}
+                </td>
 
-        <td class="p-4">
-          <span class="status ${project.className}">
-            ${project.status}
-          </span>
-        </td>
+                <td class="p-4">
+                    ${project.assignee}
+                </td>
 
-      </tr>
+                <td class="p-4 w-72">
 
-    `;
+                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
 
-  });
+                        <div
+                            class="bg-blue-500 h-full"
+                            style="width:${project.progress}%"
+                        ></div>
 
-  const avg = projects.length
-  ? Math.round(totalProgress / projects.length)
-  : 0;
+                    </div>
 
-  document.getElementById('totalProjects').innerHTML = projects.length;
-  document.getElementById('completedProjects').innerHTML = completed;
-  document.getElementById('overdueProjects').innerHTML = overdue;
-  document.getElementById('avgProgress').innerHTML = avg + '%';
+                    <div class="text-xs text-slate-500 mt-1">
+                        ${project.progress}%
+                    </div>
 
-  renderCharts(completed, overdue, staffMap);
+                </td>
+
+                <td class="p-4">
+                    ${project.deadline}
+                </td>
+
+                <td class="p-4">
+
+                    <span class="status ${project.className}">
+                        ${project.status}
+                    </span>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+    const avg =
+    projects.length
+    ? Math.round(totalProgress / projects.length)
+    : 0;
+
+    document.getElementById('totalProjects').innerHTML =
+    projects.length;
+
+    document.getElementById('completedProjects').innerHTML =
+    completed;
+
+    document.getElementById('overdueProjects').innerHTML =
+    overdue;
+
+    document.getElementById('avgProgress').innerHTML =
+    avg + '%';
+
+    renderCharts(completed, overdue, staffMap);
 
 }
+
+/* =========================
+   CHART
+========================= */
 
 function renderCharts(completed, overdue, staffMap){
 
-  if(statusChart) statusChart.destroy();
-  if(staffChart) staffChart.destroy();
-
-  const doing = projects.length - completed - overdue;
-
-  statusChart = new Chart(
-    document.getElementById('statusChart'),
-    {
-      type: 'pie',
-      data: {
-        labels: [
-          'Hoàn thành',
-          'Quá hạn',
-          'Đang thực hiện'
-        ],
-        datasets: [{
-          data: [completed, overdue, doing],
-          backgroundColor: [
-            '#22c55e',
-            '#ef4444',
-            '#3b82f6'
-          ]
-        }]
-      }
+    if(statusChart){
+        statusChart.destroy();
     }
-  );
 
-  staffChart = new Chart(
-    document.getElementById('staffChart'),
-    {
-      type: 'bar',
-      data: {
-        labels: Object.keys(staffMap),
-        datasets: [{
-          label: 'Task',
-          data: Object.values(staffMap),
-          backgroundColor: '#3b82f6'
-        }]
-      },
-      options: {
-        responsive: true
-      }
+    if(staffChart){
+        staffChart.destroy();
     }
-  );
+
+    const doing =
+    projects.length - completed - overdue;
+
+    statusChart = new Chart(
+
+        document.getElementById('statusChart'),
+
+        {
+            type:'pie',
+
+            data:{
+
+                labels:[
+                    'Hoàn thành',
+                    'Quá hạn',
+                    'Đang thực hiện'
+                ],
+
+                datasets:[{
+
+                    data:[
+                        completed,
+                        overdue,
+                        doing
+                    ],
+
+                    backgroundColor:[
+                        '#22c55e',
+                        '#ef4444',
+                        '#3b82f6'
+                    ]
+
+                }]
+
+            }
+
+        }
+
+    );
+
+    staffChart = new Chart(
+
+        document.getElementById('staffChart'),
+
+        {
+            type:'bar',
+
+            data:{
+
+                labels:Object.keys(staffMap),
+
+                datasets:[{
+
+                    label:'Task',
+
+                    data:Object.values(staffMap),
+
+                    backgroundColor:'#3b82f6'
+
+                }]
+
+            },
+
+            options:{
+                responsive:true
+            }
+
+        }
+
+    );
 
 }
 
-// SEARCH
+/* =========================
+   SEARCH
+========================= */
 
-document.getElementById('searchInput')
+document
+.getElementById('searchInput')
 .addEventListener('keyup', function(){
 
-  const keyword = this.value.toLowerCase();
+    const keyword =
+    this.value.toLowerCase();
 
-  const rows = document.querySelectorAll('#projectTable tr');
+    const rows =
+    document.querySelectorAll('#projectTable tr');
 
-  rows.forEach(row => {
+    rows.forEach(row => {
 
-    row.style.display =
-    row.innerText.toLowerCase().includes(keyword)
-    ? ''
-    : 'none';
+        row.style.display =
+        row.innerText.toLowerCase().includes(keyword)
+        ? ''
+        : 'none';
 
-  });
+    });
 
 });
 
-// DATE
+/* =========================
+   DATE
+========================= */
 
 document.getElementById('today').innerHTML =
 new Date().toLocaleDateString('vi-VN');
 
-// AUTO REFRESH
+/* =========================
+   AUTO REFRESH
+========================= */
 
 loadData();
 
 setInterval(() => {
-  loadData();
+
+    loadData();
+
 }, 60000);
 
 </script>
