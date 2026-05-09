@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>TID Dashboard</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f1f5f9;
+    color:#1e293b;
+}
+
+.container{
+    width:95%;
+    max-width:1600px;
+    margin:auto;
+    padding:20px;
+}
+
+/* HEADER */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.header-left h1{
+    font-size:34px;
+    font-weight:bold;
+}
+
+.header-left p{
+    color:#64748b;
+    margin-top:5px;
+}
+
+.header-right{
+    background:white;
+    padding:15px 25px;
+    border-radius:18px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+    text-align:right;
+}
+
+.header-right span{
+    display:block;
+    color:#64748b;
+    font-size:13px;
+}
+
+/* KPI */
+
+.kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:25px;
+}
+
+.kpi-card{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.kpi-card h3{
+    font-size:14px;
+    color:#64748b;
+    margin-bottom:12px;
+}
+
+.kpi-card .value{
+    font-size:40px;
+    font-weight:bold;
+}
+
+.blue{color:#2563eb;}
+.green{color:#16a34a;}
+.red{color:#dc2626;}
+.orange{color:#ea580c;}
+
+/* MAIN CARD */
+
+.card{
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    margin-bottom:25px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.card-header h2{
+    font-size:24px;
+}
+
+.search-box{
+    width:250px;
+    padding:10px 15px;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+}
+
+/* TABLE */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead{
+    background:#f8fafc;
+}
+
+th,td{
+    padding:15px;
+    text-align:left;
+    border-bottom:1px solid #e2e8f0;
+}
+
+tbody tr:hover{
+    background:#f8fafc;
+}
+
+/* PROGRESS */
+
+.progress-bar{
+    width:100%;
+    height:12px;
+    background:#e2e8f0;
+    border-radius:50px;
+    overflow:hidden;
+}
+
+.progress{
+    height:100%;
+    background:#2563eb;
+}
+
+/* STATUS */
+
+.status{
+    padding:8px 14px;
+    border-radius:50px;
+    color:white;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.status-success{
+    background:#16a34a;
+}
+
+.status-process{
+    background:#2563eb;
+}
+
+.status-warning{
+    background:#f59e0b;
+}
+
+.status-danger{
+    background:#dc2626;
+}
+
+/* GRID */
+
+.grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+/* GUARANTEE */
+
+.guarantee-item{
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:15px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.guarantee-item h4{
+    margin-bottom:5px;
+}
+
+/* STAFF */
+
+.staff-item{
+    margin-bottom:20px;
+}
+
+.staff-top{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:8px;
+}
+
+/* FOOTER */
+
+.footer-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:15px;
+}
+
+.footer-box{
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:20px;
+    font-size:15px;
+    background:#fafafa;
+}
+
+@media(max-width:900px){
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+    .grid-2{
+        grid-template-columns:1fr;
+    }
+
+    .card-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+    .search-box{
+        width:100%;
+    }
+
+    table{
+        min-width:900px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="header-left">
+            <h1>TID PROJECT DASHBOARD</h1>
+            <p>Dashboard theo dõi tiến độ dự án trực quan</p>
+        </div>
+
+        <div class="header-right">
+            <span>Ngày cập nhật</span>
+            <strong id="today"></strong>
+        </div>
+
+    </div>
+
+    <!-- KPI -->
+
+    <div class="kpi-grid">
+
+        <div class="kpi-card">
+            <h3>Tổng dự án</h3>
+            <div class="value blue">18</div>
+        </div>
+
+        <div class="kpi-card">
+            <h3>Hoàn thành</h3>
+            <div class="value green">7</div>
+        </div>
+
+        <div class="kpi-card">
+            <h3>Quá hạn</h3>
+            <div class="value red">3</div>
+        </div>
+
+        <div class="kpi-card">
+            <h3>Tiến độ trung bình</h3>
+            <div class="value orange">74%</div>
+        </div>
+
+    </div>
+
+    <!-- PROJECT TABLE -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <h2>TIẾN ĐỘ DỰ ÁN</h2>
+
+            <input type="text" class="search-box" placeholder="Tìm dự án..." id="searchInput">
+
+        </div>
+
+        <div style="overflow-x:auto;">
+
+            <table id="projectTable">
+
+                <thead>
+
+                    <tr>
+                        <th>Dự án</th>
+                        <th>Khách hàng</th>
+                        <th>Nhân sự</th>
+                        <th>Tiến độ</th>
+                        <th>Deadline</th>
+                        <th>Trạng thái</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>SCADA Upgrade</td>
+                        <td>VinFast</td>
+                        <td>Hoàng</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width:85%"></div>
+                            </div>
+                            <small>85%</small>
+                        </td>
+                        <td>20/05/2026</td>
+                        <td>
+                            <span class="status status-process">
+                                ĐANG THỰC HIỆN
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>BMS Integration</td>
+                        <td>Samsung</td>
+                        <td>Minh</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width:100%"></div>
+                            </div>
+                            <small>100%</small>
+                        </td>
+                        <td>01/05/2026</td>
+                        <td>
+                            <span class="status status-success">
+                                HOÀN THÀNH
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Fire Alarm System</td>
+                        <td>Intel</td>
+                        <td>An</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width:55%"></div>
+                            </div>
+                            <small>55%</small>
+                        </td>
+                        <td>15/05/2026</td>
+                        <td>
+                            <span class="status status-warning">
+                                CÓ NGUY CƠ TRỄ
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>CCTV Expansion</td>
+                        <td>Foxconn</td>
+                        <td>Long</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width:30%"></div>
+                            </div>
+                            <small>30%</small>
+                        </td>
+                        <td>10/05/2026</td>
+                        <td>
+                            <span class="status status-danger">
+                                QUÁ HẠN
+                            </span>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- GRID -->
+
+    <div class="grid-2">
+
+        <!-- GUARANTEE -->
+
+        <div class="card">
+
+            <h2 style="margin-bottom:20px;">THEO DÕI BẢO LÃNH</h2>
+
+            <div class="guarantee-item">
+
+                <div>
+                    <h4>SCADA Upgrade</h4>
+                    <small>VinFast • Tạm ứng</small>
+                </div>
+
+                <div style="text-align:right;">
+                    <strong>500,000,000 VNĐ</strong>
+                    <br>
+                    <small>Hết hạn: 01/06/2026</small>
+                </div>
+
+            </div>
+
+            <div class="guarantee-item">
+
+                <div>
+                    <h4>Fire Alarm System</h4>
+                    <small>Intel • Bảo hành</small>
+                </div>
+
+                <div style="text-align:right;">
+                    <strong>300,000,000 VNĐ</strong>
+                    <br>
+                    <small>Hết hạn: 11/05/2026</small>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- STAFF -->
+
+        <div class="card">
+
+            <h2 style="margin-bottom:20px;">THỐNG KÊ NHÂN SỰ</h2>
+
+            <div class="staff-item">
+
+                <div class="staff-top">
+                    <span>Hoàng</span>
+                    <span>8 task</span>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress" style="width:80%"></div>
+                </div>
+
+            </div>
+
+            <div class="staff-item">
+
+                <div class="staff-top">
+                    <span>Minh</span>
+                    <span>6 task</span>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress" style="width:60%"></div>
+                </div>
+
+            </div>
+
+            <div class="staff-item">
+
+                <div class="staff-top">
+                    <span>An</span>
+                    <span>5 task</span>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress" style="width:50%"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="card">
+
+        <h2 style="margin-bottom:20px;">NÂNG CẤP ĐỀ XUẤT</h2>
+
+        <div class="footer-grid">
+
+            <div class="footer-box">
+                ✅ Đồng bộ Google Sheet realtime
+            </div>
+
+            <div class="footer-box">
+                📊 Biểu đồ tiến độ theo tháng
+            </div>
+
+            <div class="footer-box">
+                🔔 Cảnh báo deadline tự động
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* DATE */
+
+document.getElementById("today").innerHTML =
+new Date().toLocaleDateString('vi-VN');
+
+/* SEARCH */
+
+const searchInput = document.getElementById("searchInput");
+const table = document.getElementById("projectTable");
+const rows = table.getElementsByTagName("tr");
+
+searchInput.addEventListener("keyup", function(){
+
+    const keyword = searchInput.value.toLowerCase();
+
+    for(let i = 1; i < rows.length; i++){
+
+        let text = rows[i].textContent.toLowerCase();
+
+        rows[i].style.display =
+        text.includes(keyword) ? "" : "none";
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
