@@ -1,650 +1,788 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PROJECT DISTRIBUTOR DASHBOARD - TID CO.LTD</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255,255,255,0.10);
+            --glass-bg-hover: rgba(255,255,255,0.15);
+            --glass-border: rgba(255,255,255,0.22);
+            --glass-border-hi: rgba(255,255,255,0.38);
+            --glass-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 1.5px 0 rgba(255,255,255,0.12) inset;
+            --glass-shadow-sm: 0 4px 16px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.10) inset;
+            --blur: blur(18px) saturate(1.6);
+            --blur-sm: blur(12px) saturate(1.4);
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+            --accent: #60c8f0;
+            --accent-glow: rgba(96,200,240,0.28);
+            --gold: #ffc94d;
+            --green: #3de08a;
+            --red: #ff6b6b;
+            --text: #ffffff;
+            --text-bright: #ffffff;
+            --text-dim: rgba(255,255,255,0.45);
 
-<title>TID Project Dashboard</title>
+            --row-a: rgba(255,255,255,0.04);
+            --row-b: rgba(255,255,255,0.01);
+            --border: rgba(255,255,255,0.10);
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            --f-sans: 'IBM Plex Sans', sans-serif;
+            --f-mono: 'IBM Plex Mono', monospace;
+        }
 
-<style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body{
-    background:#f1f5f9;
-    font-family:Arial, Helvetica, sans-serif;
-}
+        html, body {
+            height: 100%;
+            background: linear-gradient(135deg, #0a1628 0%, #0d2240 30%, #0f1e3a 55%, #0a2850 75%, #0d1e38 100%);
+            color: var(--text);
+            font-family: var(--f-sans);
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
 
-.card{
-    background:white;
-    border-radius:24px;
-    padding:24px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
+        /* Animated mesh background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(96,200,240,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 20%, rgba(120,160,255,0.10) 0%, transparent 55%),
+                radial-gradient(ellipse 70% 60% at 50% 90%, rgba(60,120,220,0.10) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 90% 70%, rgba(96,200,240,0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: meshDrift 18s ease-in-out infinite alternate;
+        }
+        @keyframes meshDrift {
+            from { opacity: 0.8; transform: scale(1); }
+            to   { opacity: 1;   transform: scale(1.04); }
+        }
 
-.status{
-    padding:6px 12px;
-    border-radius:999px;
-    color:white;
-    font-size:12px;
-    font-weight:bold;
-}
+        /* ══ HEADER ══ */
+        .header {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            height: 60px;
+            padding: 0 20px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border-bottom: 1px solid var(--glass-border-hi);
+            box-shadow: 0 2px 24px rgba(0,0,0,0.22), 0 1px 0 rgba(255,255,255,0.10) inset;
+            position: relative;
+            z-index: 10;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 10%; right: 10%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.55;
+        }
 
-.success{
-    background:#22c55e;
-}
+        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--text-bright); }
+        .logo-box {
+            width: 30px; height: 30px;
+            background: rgba(96,200,240,0.15);
+            border: 1.5px solid rgba(96,200,240,0.5);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-weight: 700; font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(96,200,240,0.25) inset, 0 0 8px rgba(96,200,240,0.15);
+            backdrop-filter: var(--blur-sm);
+        }
+        .header-title {
+            font-size: 20px; font-weight: 700; letter-spacing: 5px;
+            color: transparent;
+            background: linear-gradient(90deg, rgba(255,255,255,0.7) 0%, var(--accent) 50%, rgba(255,255,255,0.7) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-transform: uppercase; text-align: center;
+            filter: drop-shadow(0 0 12px rgba(96,200,240,0.5));
+        }
+        .header-right { text-align: right; font-family: var(--f-mono); }
+        .header-clock { font-size: 20px; color: var(--text-bright); font-weight: 600; text-shadow: 0 0 12px rgba(96,200,240,0.4); }
+        .header-date { font-size: 12px; color: var(--accent); opacity: 0.8; }
 
-.danger{
-    background:#ef4444;
-}
+        /* ══ DESKTOP LAYOUT ══ */
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+            padding: 12px;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
 
-.warning{
-    background:#f59e0b;
-}
+        /* ══ GLASS PANEL BASE ══ */
+        .col-left {
+            flex: 0 0 60%;
+            display: flex;
+            flex-direction: column;
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 15px;
+            position: relative;
+            min-height: 0;
+            box-shadow: var(--glass-shadow);
+            overflow: hidden;
+        }
+        .col-left::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.4) 50%, transparent 95%);
+        }
 
-.process{
-    background:#3b82f6;
-}
+        .col-right {
+            flex: 0 0 calc(40% - 12px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 0;
+        }
 
-.loading{
-    text-align:center;
-    padding:40px;
-    color:#64748b;
-}
+        .panel-top-right {
+            flex: 0 0 58%;
+            display: flex;
+            flex-direction: column;
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 12px;
+            min-height: 0;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .panel-top-right::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.35) 50%, transparent 90%);
+        }
 
-.error{
-    text-align:center;
-    padding:40px;
-    color:#ef4444;
-    line-height:30px;
-}
+        .panel-bottom-right {
+            flex: 1;
+            display: flex;
+            gap: 12px;
+            min-height: 0;
+        }
 
-</style>
+        .sub-panel {
+            flex: 1;
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow-sm);
+            position: relative;
+        }
+        .sub-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent 15%, rgba(255,255,255,0.3) 50%, transparent 85%);
+        }
 
+        /* ══ PANEL HEADER ══ */
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            padding-bottom: 8px;
+            flex-shrink: 0;
+        }
+        .panel-title {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 14px; font-weight: 700;
+            color: rgba(255,255,255,0.92);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .title-dot {
+            width: 7px; height: 7px;
+            background: var(--accent);
+            transform: rotate(45deg);
+            flex-shrink: 0;
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .badge-count {
+            font-family: var(--f-mono); font-size: 12px;
+            padding: 3px 10px;
+            background: rgba(255,201,77,0.18);
+            color: var(--gold);
+            border: 1px solid rgba(255,201,77,0.35);
+            border-radius: 20px;
+            font-weight: 700;
+            white-space: nowrap;
+            box-shadow: 0 0 10px rgba(255,201,77,0.15);
+        }
+
+        /* ══ TABLE ══ */
+        .table-wrap { flex: 1; overflow: hidden; min-height: 0; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+
+        th {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            padding: 8px 4px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            backdrop-filter: blur(4px);
+        }
+
+        tbody tr:nth-child(odd) { background: rgba(255,255,255,0.025); }
+        tbody tr:nth-child(even) { background: rgba(255,255,255,0.005); }
+        tbody tr:hover { background: rgba(96,200,240,0.08) !important; transition: background 0.15s; }
+
+        #p-table td {
+            padding: 13px 6px;
+            font-size: 16px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #g-table td {
+            padding: 8px 4px;
+            font-size: 11px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ══ STATS ROWS ══ */
+        .stat-row td {
+            font-size: 14px;
+            padding: 8px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-name {
+            color: rgba(255,255,255,0.85);
+            font-weight: 500;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stat-val {
+            width: 42px;
+            text-align: right;
+            padding-right: 8px !important;
+            font-family: var(--f-mono);
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .text-left { text-align: left !important; }
+        .gold-bold { color: var(--gold); font-weight: 700; }
+        .accent-text { color: var(--accent); }
+
+        /* Progress bar */
+        .bar-container { display: flex; align-items: center; gap: 4px; justify-content: center; }
+        .bar-bg {
+            width: 45px; height: 7px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(96,200,240,0.6), var(--accent));
+            border-radius: 10px;
+            box-shadow: 0 0 6px rgba(96,200,240,0.5);
+        }
+
+        /* Status badges */
+        .st {
+            font-size: 9px; padding: 2px 7px;
+            border-radius: 20px;
+            font-weight: 700; white-space: nowrap;
+        }
+        .st-done {
+            background: rgba(61,224,138,0.18);
+            color: var(--green);
+            border: 1px solid rgba(61,224,138,0.35);
+            box-shadow: 0 0 8px rgba(61,224,138,0.15);
+        }
+        .st-wip {
+            background: rgba(96,200,240,0.10);
+            color: var(--accent);
+            border: 1px solid rgba(96,200,240,0.30);
+        }
+        .st-late {
+            background: rgba(255,107,107,0.18);
+            color: var(--red);
+            border: 1px solid rgba(255,107,107,0.35);
+            box-shadow: 0 0 8px rgba(255,107,107,0.20);
+            animation: flash 1.4s step-end infinite;
+        }
+        @keyframes flash { 0%,100%{opacity:1} 50%{opacity:.6} }
+        @keyframes flash-red { 0%,100%{color:#ff6b6b;} 50%{color:transparent;} }
+
+        /* Footer */
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: rgba(96,200,240,0.7);
+            font-family: var(--f-mono);
+            padding-top: 8px;
+            flex-shrink: 0;
+        }
+
+        /* Refresh bar */
+        .refresh-line {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), rgba(96,200,240,0.3));
+            width: 0;
+            border-radius: 0 2px 2px 0;
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .refresh-line.animating { animation: run 30s linear forwards; }
+        @keyframes run { from { width: 100%; } to { width: 0%; } }
+
+        /* ══ DESKTOP (≥ 1024px) ══ */
+        @media (min-width: 1024px) {
+            .header { height: 70px; padding: 0 28px; }
+            .header-logo { font-size: 22px; gap: 12px; }
+            .logo-box { width: 40px; height: 40px; font-size: 18px; border-radius: 10px; }
+            .header-title { font-size: 28px; letter-spacing: 7px; }
+            .header-clock { font-size: 28px; }
+            .header-date { font-size: 14px; }
+            .container { height: calc(100vh - 70px); padding: 16px; gap: 16px; }
+            .col-left { padding: 20px; border-radius: 20px; }
+            .col-right { gap: 16px; }
+            .panel-top-right { padding: 16px; border-radius: 20px; }
+            .sub-panel { padding: 14px; border-radius: 20px; }
+            .panel-header { margin-bottom: 14px; padding-bottom: 12px; }
+            .panel-title { font-size: 18px; gap: 10px; }
+            .title-dot { width: 9px; height: 9px; }
+            .badge-count { font-size: 15px; padding: 5px 14px; }
+            th { font-size: 15px; padding: 12px 8px; letter-spacing: 0.8px; }
+            #p-table td { padding: 15px 10px; font-size: 20px; }
+            #g-table td { padding: 11px 6px; font-size: 14px; }
+            .bar-bg { width: 80px; height: 10px; }
+            .bar-container { gap: 8px; }
+            .bar-container span { width: 50px !important; font-size: 18px !important; }
+            .st { font-size: 14px; padding: 5px 12px; }
+            .footer-info { font-size: 13px; padding-top: 10px; }
+            .stat-row td { font-size: 18px; padding: 11px 10px; }
+            .stat-val { font-size: 19px; width: 52px; }
+        }
+
+        /* ══ MOBILE TAB SYSTEM ══ */
+        .tab-bar { display: none; }
+
+        /* ══ MOBILE (≤ 767px) ══ */
+        @media (max-width: 767px) {
+            .header {
+                height: 52px;
+                padding: 0 12px;
+                grid-template-columns: auto 1fr auto;
+                gap: 8px;
+            }
+            .header-logo { font-size: 13px; gap: 6px; }
+            .logo-box { width: 26px; height: 26px; font-size: 12px; border-radius: 6px; }
+            .header-title { font-size: 13px; letter-spacing: 2px; }
+            .header-clock { font-size: 15px; }
+            .header-date { font-size: 10px; }
+
+            .tab-bar {
+                display: flex;
+                background: rgba(255,255,255,0.07);
+                backdrop-filter: var(--blur-sm);
+                border-bottom: 1px solid var(--glass-border);
+                flex-shrink: 0;
+                position: relative;
+                z-index: 5;
+            }
+            .tab-btn {
+                flex: 1;
+                padding: 8px 4px;
+                font-size: 10px;
+                font-weight: 600;
+                color: var(--text-dim);
+                background: none;
+                border: none;
+                border-bottom: 2px solid transparent;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-family: var(--f-sans);
+            }
+            .tab-btn.active {
+                color: var(--accent);
+                border-bottom-color: var(--accent);
+                text-shadow: 0 0 8px var(--accent-glow);
+            }
+
+            .container {
+                flex-direction: column;
+                height: calc(100vh - 52px - 34px);
+                padding: 8px;
+                gap: 0;
+                overflow: hidden;
+            }
+
+            .col-left, .col-right, .panel-top-right, .panel-bottom-right { display: none; }
+
+            .col-left.tab-active, .col-right.tab-active {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                border-radius: 12px;
+                padding: 10px;
+                min-height: 0;
+                height: 100%;
+            }
+            .col-right.tab-active { gap: 10px; overflow-y: auto; }
+            .col-right.tab-active .panel-top-right { display: flex; flex: 0 0 auto; border-radius: 12px; padding: 10px; min-height: 180px; }
+            .col-right.tab-active .panel-bottom-right { display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; }
+            .col-right.tab-active .sub-panel { min-height: 130px; flex: 0 0 auto; border-radius: 12px; }
+
+            th { font-size: 9px; padding: 6px 3px; letter-spacing: 0; }
+            #p-table td { padding: 9px 4px; font-size: 11px; }
+            #g-table td { padding: 6px 3px; font-size: 10px; }
+            .panel-title { font-size: 12px; }
+            .badge-count { font-size: 10px; padding: 2px 8px; }
+            .bar-bg { width: 32px; height: 6px; }
+            .bar-container { gap: 3px; }
+            .st { font-size: 8px; padding: 1px 5px; }
+            .footer-info { font-size: 10px; padding-top: 6px; }
+            .sub-panel { padding: 8px; }
+            .panel-header { margin-bottom: 6px; padding-bottom: 6px; }
+            .stat-row td { font-size: 12px; padding: 6px 6px; }
+            .stat-val { font-size: 13px; }
+        }
+
+        /* ══ TABLET (768px - 1023px) ══ */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .container { padding: 8px; gap: 8px; }
+            .col-left { flex: 0 0 60%; padding: 12px; border-radius: 14px; }
+            .col-right { flex: 0 0 calc(40% - 8px); }
+            .panel-top-right { flex: 0 0 55%; padding: 10px; border-radius: 14px; }
+            .sub-panel { border-radius: 14px; }
+            th { font-size: 10px; padding: 7px 3px; }
+            #p-table td { padding: 9px 4px; font-size: 12px; }
+            #g-table td { padding: 7px 3px; font-size: 10px; }
+            .panel-title { font-size: 12px; }
+            .header-title { font-size: 16px; letter-spacing: 3px; }
+            .header-clock { font-size: 16px; }
+            .st { font-size: 8px; padding: 2px 5px; }
+            .bar-bg { width: 38px; }
+            .stat-row td { font-size: 13px; padding: 7px 8px; }
+            .stat-val { font-size: 14px; }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(96,200,240,0.3); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(96,200,240,0.5); }
+    </style>
 </head>
-
 <body>
 
-<div class="max-w-7xl mx-auto p-6 space-y-6">
-
-    <!-- HEADER -->
-
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-
-        <div>
-
-            <h1 class="text-4xl font-bold">
-                TID PROJECT DASHBOARD
-            </h1>
-
-            <p class="text-slate-500 mt-2">
-                Dashboard realtime đồng bộ Google Sheet
-            </p>
-
-        </div>
-
-        <div class="card min-w-[260px]">
-
-            <div class="flex justify-between items-center mb-2">
-
-                <div class="text-sm text-slate-500">
-                    Google Sheet Sync
-                </div>
-
-                <button
-                    onclick="loadData()"
-                    class="bg-slate-100 hover:bg-slate-200 rounded-xl px-3 py-2"
-                >
-                    🔄
-                </button>
-
-            </div>
-
-            <div class="text-xl font-bold" id="today"></div>
-
-            <div class="text-xs text-slate-400 mt-1">
-                Đồng bộ lần cuối:
-                <span id="lastSync">--:--</span>
-            </div>
-
-        </div>
-
+<div class="header">
+    <div class="header-logo"><div class="logo-box">T</div><span>TID CO.LTD</span></div>
+    <div class="header-title">PROJECT DISTRIBUTOR DASHBOARD</div>
+    <div class="header-right">
+        <div class="header-clock" id="clock">00:00:00</div>
+        <div class="header-date" id="date">--/--/----</div>
     </div>
+</div>
 
-    <!-- KPI -->
+<div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('left')">📋 TIẾN ĐỘ</button>
+    <button class="tab-btn" onclick="switchTab('right')">🏦 CÔNG NỢ & THỐNG KÊ</button>
+</div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-
-        <div class="card">
-            <div class="text-slate-500 text-sm">
-                Tổng dự án
-            </div>
-
-            <div
-                class="text-4xl font-bold text-blue-600 mt-3"
-                id="totalProjects"
-            >
-                0
-            </div>
+<div class="container">
+    <!-- CỘT TRÁI: TIẾN ĐỘ DỰ ÁN -->
+    <div class="col-left tab-active" id="tab-left">
+        <div class="panel-header">
+            <div class="panel-title"><div class="title-dot"></div> TIẾN ĐỘ DỰ ÁN</div>
+            <div class="badge-count" id="p-count">0 HẠNG MỤC</div>
         </div>
-
-        <div class="card">
-            <div class="text-slate-500 text-sm">
-                Hoàn thành
-            </div>
-
-            <div
-                class="text-4xl font-bold text-green-600 mt-3"
-                id="completedProjects"
-            >
-                0
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="text-slate-500 text-sm">
-                Quá hạn
-            </div>
-
-            <div
-                class="text-4xl font-bold text-red-600 mt-3"
-                id="overdueProjects"
-            >
-                0
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="text-slate-500 text-sm">
-                Tiến độ TB
-            </div>
-
-            <div
-                class="text-4xl font-bold text-indigo-600 mt-3"
-                id="avgProgress"
-            >
-                0%
-            </div>
-        </div>
-
-    </div>
-
-    <!-- CHART -->
-
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-        <div class="card">
-
-            <h2 class="text-2xl font-bold mb-6">
-                THỐNG KÊ TRẠNG THÁI
-            </h2>
-
-            <canvas id="statusChart"></canvas>
-
-        </div>
-
-        <div class="card">
-
-            <h2 class="text-2xl font-bold mb-6">
-                THỐNG KÊ NHÂN SỰ
-            </h2>
-
-            <canvas id="staffChart"></canvas>
-
-        </div>
-
-    </div>
-
-    <!-- TABLE -->
-
-    <div class="card overflow-hidden">
-
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-
-            <h2 class="text-2xl font-bold">
-                DANH SÁCH DỰ ÁN
-            </h2>
-
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Tìm dự án..."
-                class="border rounded-2xl px-4 py-3 w-full lg:w-72 outline-none focus:ring-2 focus:ring-blue-500"
-            >
-
-        </div>
-
-        <div class="overflow-auto">
-
-            <table class="w-full min-w-[900px] text-sm">
-
+        <div class="table-wrap">
+            <table>
                 <thead>
-
-                    <tr class="bg-slate-100 border-b">
-
-                        <th class="text-left p-4">Dự án</th>
-                        <th class="text-left p-4">Khách hàng</th>
-                        <th class="text-left p-4">Nhân sự</th>
-                        <th class="text-left p-4">Tiến độ</th>
-                        <th class="text-left p-4">Deadline</th>
-                        <th class="text-left p-4">Trạng thái</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="projectTable">
-
                     <tr>
-                        <td colspan="6" class="loading">
-                            Đang tải dữ liệu...
-                        </td>
+                        <th style="width:22%">DỰ ÁN</th>
+                        <th style="width:13%">KHÁCH HÀNG</th>
+                        <th style="width:13%">NHÂN SỰ</th>
+                        <th style="width:12%">HẠNG MỤC</th>
+                        <th style="width:13%">TIẾN ĐỘ</th>
+                        <th style="width:15%">DEADLINE</th>
+                        <th style="width:12%">T.THÁI</th>
                     </tr>
-
-                </tbody>
-
+                </thead>
+                <tbody id="p-table"></tbody>
             </table>
-
         </div>
-
+        <div class="footer-info">
+            <div id="p-page">PAGE 1/1</div>
+            <div id="p-sync">Đang cập nhật...</div>
+        </div>
+        <div class="refresh-line" id="line1"></div>
     </div>
 
+    <!-- CỘT PHẢI -->
+    <div class="col-right" id="tab-right">
+        <div class="panel-top-right">
+            <div class="panel-header">
+                <div class="panel-title"><div class="title-dot"></div> THEO DÕI CÔNG NỢ</div>
+                <div id="g-total-badge" class="badge-count" style="background:rgba(96,200,240,0.15);color:var(--accent);border-color:rgba(96,200,240,0.35);box-shadow:0 0 10px rgba(96,200,240,0.15);">0</div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:27%">DỰ ÁN</th>
+                            <th style="width:15%">KHÁCH HÀNG</th>
+                            <th style="width:10%">LOẠI</th>
+                            <th style="width:16%">GIÁ TRỊ</th>
+                            <th style="width:16%">HẠN TT</th>
+                            <th style="width:16%">HẾT HẠN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="g-table"></tbody>
+                </table>
+            </div>
+            <div class="footer-info">
+                <div id="g-page">PAGE 1/1</div>
+                <div id="g-total-val">Tổng: 0</div>
+            </div>
+        </div>
+
+        <div class="panel-bottom-right">
+            <div class="sub-panel">
+                <div class="panel-header">
+                    <div class="panel-title" style="font-size:13px"><div class="title-dot"></div>THỐNG KÊ DỰ ÁN/NHÂN SỰ (<span id="s-total">0</span>)</div>
+                </div>
+                <div class="table-wrap">
+                    <table><tbody id="s-table"></tbody></table>
+                </div>
+            </div>
+            <div class="sub-panel">
+                <div class="panel-header">
+                    <div class="panel-title" style="font-size:13px"><div class="title-dot"></div>THỐNG KÊ DỰ ÁN/KHÁCH HÀNG (<span id="c-total">0</span>)</div>
+                </div>
+                <div class="table-wrap">
+                    <table><tbody id="c-table"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
+    const SHEET_ID = "1Vk7_CN7wqi7UyBuQsrmlmgf_a6gjhy5a6Io1Zg-o07g";
+    const URL_PROGRESS  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=1280059749`;
+    const URL_GUARANTEE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Bao%20lanh`;
 
-/* =========================
-   GOOGLE SHEET API
-========================= */
+    let dataP = [], dataG = [], currentPage = 0, currentGPage = 0;
+    const ROWS_PER_PAGE = 13;
+    const G_ROWS_PER_PAGE = 8;
 
-const GOOGLE_SHEET_API =
-'https://opensheet.elk.sh/1Qefkd7Pev_QVd2ud3gcSB97JMdCPb5XBEkA-9Cfpg2Y/2026';
+    setInterval(() => {
+        const n = new Date();
+        document.getElementById("clock").innerText = n.toLocaleTimeString("vi-VN", {hour12: false});
+        document.getElementById("date").innerText  = n.toLocaleDateString("vi-VN");
+    }, 1000);
 
-/* =========================
-   VARIABLES
-========================= */
-
-let projects = [];
-
-let statusChart;
-let staffChart;
-
-/* =========================
-   LOAD DATA
-========================= */
-
-async function loadData(){
-
-    try{
-
-        document.getElementById('projectTable').innerHTML = `
-            <tr>
-                <td colspan="6" class="loading">
-                    Đang tải dữ liệu...
-                </td>
-            </tr>
-        `;
-
-        const response = await fetch(GOOGLE_SHEET_API);
-
-        if(!response.ok){
-            throw new Error('Không thể kết nối Google Sheet');
+    function switchTab(tab) {
+        const left  = document.getElementById("tab-left");
+        const right = document.getElementById("tab-right");
+        const btns  = document.querySelectorAll(".tab-btn");
+        if (tab === 'left') {
+            left.classList.add("tab-active"); right.classList.remove("tab-active");
+            btns[0].classList.add("active");  btns[1].classList.remove("active");
+        } else {
+            right.classList.add("tab-active"); left.classList.remove("tab-active");
+            btns[1].classList.add("active");   btns[0].classList.remove("active");
         }
+    }
 
-        const data = await response.json();
+    async function fetchData() {
+        try {
+            const [resP, resG] = await Promise.all([fetch(URL_PROGRESS), fetch(URL_GUARANTEE)]);
+            const txtP = await resP.text();
+            const txtG = await resG.text();
+            dataP = JSON.parse(txtP.substring(txtP.indexOf("{"), txtP.lastIndexOf("}") + 1)).table.rows.slice(4);
+            dataG = JSON.parse(txtG.substring(txtG.indexOf("{"), txtG.lastIndexOf("}") + 1)).table.rows.filter(r => r.c && r.c[9]?.v);
+            renderAll();
+            startProgressLine();
+            document.getElementById("p-sync").innerText = "Cập nhật: " + new Date().toLocaleTimeString("vi-VN", {hour12: false});
+        } catch(e) { console.error(e); }
+    }
 
-        if(!Array.isArray(data)){
-            throw new Error('Dữ liệu không hợp lệ');
-        }
+    function renderAll() { renderProgress(); renderGuarantees(); renderStats(); }
 
-        if(data.length === 0){
+    function renderProgress() {
+        const el = document.getElementById("p-table");
+        const totalPages = Math.ceil(dataP.length / ROWS_PER_PAGE);
+        const items = dataP.slice(currentPage * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
 
-            document.getElementById('projectTable').innerHTML = `
-                <tr>
-                    <td colspan="6" class="error">
-                        Google Sheet chưa có dữ liệu
-                    </td>
-                </tr>
-            `;
+        const countItems = dataP.filter(r => r.c && r.c[2]?.v).length;
+        document.getElementById("p-count").innerText = `${countItems} HẠNG MỤC`;
+        document.getElementById("p-page").innerText  = `PAGE ${currentPage + 1}/${totalPages || 1}`;
 
-            return;
-        }
+        el.innerHTML = items.map(row => {
+            const d = row.c;
+            const pct = Math.round((d[9]?.v || 0) * (d[9]?.v <= 1 ? 100 : 1));
+            const isLate = d[7]?.v && parseDate(d[7].v) < new Date() && pct < 100;
+            const item = d[2]?.v || "";
+            return `<tr>
+                <td class="text-left gold-bold" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d[1]?.v || "—"}</td>
+                <td class="text-left" style="color:rgba(255,255,255,0.85);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d[4]?.v || "—"}</td>
+                <td style="color:rgba(255,255,255,0.85);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d[3]?.v || "—"}</td>
+                <td class="text-left" style="color:rgba(255,255,255,0.80);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item}</td>
+                <td>${item ? `<div class="bar-container"><span style="width:28px;font-family:var(--f-mono);font-size:13px;text-align:right;color:rgba(255,255,255,0.9);">${pct}%</span><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div>` : ""}</td>
+                <td style="font-family:var(--f-mono);font-size:16px;font-weight:600;color:rgba(255,255,255,0.9);">${d[7]?.f || "—"}</td>
+                <td>${item ? `<span class="st ${pct>=100?'st-done':(isLate?'st-late':'st-wip')}">${pct>=100?'DONE':(isLate?'LATE':'WORKING')}</span>` : ""}</td>
+            </tr>`;
+        }).join("");
+    }
 
-        projects = data.map(item => {
+    function renderGuarantees() {
+        const el = document.getElementById("g-table");
+        const totalPages = Math.ceil(dataG.length / G_ROWS_PER_PAGE);
+        const items = dataG.slice(currentGPage * G_ROWS_PER_PAGE, currentGPage * G_ROWS_PER_PAGE + G_ROWS_PER_PAGE);
 
-            const progress = Number(item.progress || 0);
-
-            const today = new Date();
-
-            const deadline = new Date(item.deadline);
-
-            let status = 'ĐANG THỰC HIỆN';
-            let className = 'process';
-
-            if(progress >= 100){
-
-                status = 'HOÀN THÀNH';
-                className = 'success';
-
-            }
-            else if(deadline < today){
-
-                status = 'QUÁ HẠN';
-                className = 'danger';
-
-            }
-            else if(progress < 50){
-
-                status = 'NGUY CƠ TRỄ';
-                className = 'warning';
-
-            }
-
-            return {
-
-                id: item.id || Math.random(),
-
-                name: item.name || '-',
-
-                customer: item.customer || '-',
-
-                assignee: item.assignee || '-',
-
-                progress,
-
-                deadline: item.deadline || '-',
-
-                status,
-
-                className
-
-            };
-
+        let totalVal = 0;
+        dataG.forEach(row => {
+            let v = row.c[12]?.v;
+            if (typeof v === 'number') totalVal += v;
+            else if (typeof v === 'string') totalVal += parseFloat(v.replace(/[^0-9.-]+/g,"")) || 0;
         });
 
-        renderDashboard();
+        const today = new Date(); today.setHours(0,0,0,0);
 
-        document.getElementById('lastSync').innerHTML =
-        new Date().toLocaleTimeString('vi-VN');
+        el.innerHTML = items.map(row => {
+            const d = row.c;
 
-    }
-    catch(error){
+            const expDate = parseDate(d[7]?.v);
+            let daysLeft = null;
+            if (expDate) { const e = new Date(expDate); e.setHours(0,0,0,0); daysLeft = Math.ceil((e - today) / 86400000); }
+            const nearExpiry = daysLeft !== null && daysLeft <= 10;
+            const dateStyle = nearExpiry
+                ? "color:#ff6b6b;font-family:var(--f-mono);font-size:14px;font-weight:700;white-space:nowrap;animation:flash-red 1.4s step-end infinite;"
+                : "color:rgba(255,255,255,0.9);font-family:var(--f-mono);font-size:14px;font-weight:600;white-space:nowrap;";
 
-        console.error(error);
+            const letterDate = parseDate(d[8]?.v);
+            let letterDaysLeft = null;
+            if (letterDate) { const le = new Date(letterDate); le.setHours(0,0,0,0); letterDaysLeft = Math.ceil((le - today) / 86400000); }
+            const letterNearExpiry = letterDaysLeft !== null && letterDaysLeft <= 10;
+            const letterDateStyle = letterNearExpiry
+                ? "color:#ff6b6b;font-family:var(--f-mono);font-size:14px;font-weight:700;white-space:nowrap;animation:flash-red 1.4s step-end infinite;"
+                : "color:rgba(255,255,255,0.9);font-family:var(--f-mono);font-size:14px;font-weight:600;white-space:nowrap;";
 
-        document.getElementById('projectTable').innerHTML = `
-            <tr>
-                <td colspan="6" class="error">
+            return `<tr>
+                <td class="text-left" style="color:rgba(255,255,255,0.9);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d[9]?.v || "—"}</td>
+                <td class="text-left" style="color:rgba(255,255,255,0.8);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d[10]?.v || "—"}</td>
+                <td style="font-weight:700;color:${d[13]?.v==='BLHĐ'?'#3de08a':d[13]?.v==='BLTT'?'#ff6b6b':'rgba(255,255,255,0.85)'};">${d[13]?.v || "—"}</td>
+                <td class="gold-bold" style="white-space:nowrap;">${d[12]?.f || d[12]?.v || "0"}</td>
+                <td style="${letterDateStyle}">${d[8]?.f || d[8]?.v || "—"}</td>
+                <td style="${dateStyle}">${d[7]?.f || "—"}</td>
+            </tr>`;
+        }).join("");
 
-                    Không tải được dữ liệu Google Sheet
-
-                    <br><br>
-
-                    Kiểm tra lại:
-
-                    <br>
-
-                    1. Google Sheet đã Publish chưa
-
-                    <br>
-
-                    2. Tên tab có đúng là 2026 không
-
-                    <br>
-
-                    3. Có đúng tên cột không
-
-                </td>
-            </tr>
-        `;
-
+        document.getElementById("g-total-badge").innerText = totalVal.toLocaleString('vi-VN');
+        document.getElementById("g-page").innerText = `PAGE ${currentGPage + 1}/${totalPages || 1}`;
+        document.getElementById("g-total-val").innerText = `Tổng: ${totalVal.toLocaleString('vi-VN')} đ`;
     }
 
-}
+    function renderStats() {
+        const staff = {}, cust = {};
+        dataP.forEach(r => {
+            const c = r.c;
+            const s = c[3]?.v;
+            if (s && s.trim() && s !== "—") staff[s] = (staff[s] || 0) + 1;
+            const cu = c[4]?.v;
+            if (cu && cu.trim() && cu !== "—") cust[cu] = (cust[cu] || 0) + 1;
+        });
 
-/* =========================
-   RENDER DASHBOARD
-========================= */
+        const rowTpl = (n, v) => `<tr class="stat-row">
+            <td class="stat-name">${n}</td>
+            <td class="stat-val">${v}</td>
+        </tr>`;
 
-function renderDashboard(){
+        const sortedStaff = Object.entries(staff).sort((a,b) => b[1]-a[1]);
+        const sortedCust  = Object.entries(cust).sort((a,b) => b[1]-a[1]);
 
-    const table =
-    document.getElementById('projectTable');
+        document.getElementById("s-total").innerText = sortedStaff.length;
+        document.getElementById("c-total").innerText = sortedCust.length;
 
-    table.innerHTML = '';
+        document.getElementById("s-table").innerHTML = sortedStaff.length
+            ? sortedStaff.map(([n,v]) => rowTpl(n,v)).join("")
+            : `<tr><td colspan="2" style="text-align:center;color:var(--text-dim);padding:12px;font-size:14px;">KHÔNG CÓ DỮ LIỆU</td></tr>`;
 
-    let completed = 0;
-
-    let overdue = 0;
-
-    let totalProgress = 0;
-
-    const staffMap = {};
-
-    projects.forEach(project => {
-
-        totalProgress += project.progress;
-
-        if(project.status === 'HOÀN THÀNH'){
-            completed++;
-        }
-
-        if(project.status === 'QUÁ HẠN'){
-            overdue++;
-        }
-
-        if(!staffMap[project.assignee]){
-            staffMap[project.assignee] = 0;
-        }
-
-        staffMap[project.assignee]++;
-
-        table.innerHTML += `
-
-            <tr class="border-b hover:bg-slate-50">
-
-                <td class="p-4 font-semibold">
-                    ${project.name}
-                </td>
-
-                <td class="p-4">
-                    ${project.customer}
-                </td>
-
-                <td class="p-4">
-                    ${project.assignee}
-                </td>
-
-                <td class="p-4 w-72">
-
-                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-
-                        <div
-                            class="bg-blue-500 h-full"
-                            style="width:${project.progress}%"
-                        ></div>
-
-                    </div>
-
-                    <div class="text-xs text-slate-500 mt-1">
-                        ${project.progress}%
-                    </div>
-
-                </td>
-
-                <td class="p-4">
-                    ${project.deadline}
-                </td>
-
-                <td class="p-4">
-
-                    <span class="status ${project.className}">
-                        ${project.status}
-                    </span>
-
-                </td>
-
-            </tr>
-
-        `;
-
-    });
-
-    const avg =
-    projects.length
-    ? Math.round(totalProgress / projects.length)
-    : 0;
-
-    document.getElementById('totalProjects').innerHTML =
-    projects.length;
-
-    document.getElementById('completedProjects').innerHTML =
-    completed;
-
-    document.getElementById('overdueProjects').innerHTML =
-    overdue;
-
-    document.getElementById('avgProgress').innerHTML =
-    avg + '%';
-
-    renderCharts(completed, overdue, staffMap);
-
-}
-
-/* =========================
-   CHART
-========================= */
-
-function renderCharts(completed, overdue, staffMap){
-
-    if(statusChart){
-        statusChart.destroy();
+        document.getElementById("c-table").innerHTML = sortedCust.length
+            ? sortedCust.map(([n,v]) => rowTpl(n,v)).join("")
+            : `<tr><td colspan="2" style="text-align:center;color:var(--text-dim);padding:12px;font-size:14px;">KHÔNG CÓ DỮ LIỆU</td></tr>`;
     }
 
-    if(staffChart){
-        staffChart.destroy();
+    function parseDate(v) {
+        if (!v) return null;
+        const m = v.match(/Date\((\d+),(\d+),(\d+)\)/);
+        return m ? new Date(+m[1], +m[2], +m[3]) : null;
     }
 
-    const doing =
-    projects.length - completed - overdue;
+    function startProgressLine() {
+        const l = document.getElementById("line1");
+        l.classList.remove("animating"); void l.offsetWidth; l.classList.add("animating");
+    }
 
-    statusChart = new Chart(
+    setInterval(() => {
+        const total  = Math.ceil(dataP.length / ROWS_PER_PAGE);
+        const gTotal = Math.ceil(dataG.length / G_ROWS_PER_PAGE);
+        if (total  > 1) { currentPage  = (currentPage  + 1) % total;  renderProgress(); }
+        if (gTotal > 1) { currentGPage = (currentGPage + 1) % gTotal; renderGuarantees(); }
+    }, 20000);
 
-        document.getElementById('statusChart'),
-
-        {
-            type:'pie',
-
-            data:{
-
-                labels:[
-                    'Hoàn thành',
-                    'Quá hạn',
-                    'Đang thực hiện'
-                ],
-
-                datasets:[{
-
-                    data:[
-                        completed,
-                        overdue,
-                        doing
-                    ],
-
-                    backgroundColor:[
-                        '#22c55e',
-                        '#ef4444',
-                        '#3b82f6'
-                    ]
-
-                }]
-
-            }
-
-        }
-
-    );
-
-    staffChart = new Chart(
-
-        document.getElementById('staffChart'),
-
-        {
-            type:'bar',
-
-            data:{
-
-                labels:Object.keys(staffMap),
-
-                datasets:[{
-
-                    label:'Task',
-
-                    data:Object.values(staffMap),
-
-                    backgroundColor:'#3b82f6'
-
-                }]
-
-            },
-
-            options:{
-                responsive:true
-            }
-
-        }
-
-    );
-
-}
-
-/* =========================
-   SEARCH
-========================= */
-
-document
-.getElementById('searchInput')
-.addEventListener('keyup', function(){
-
-    const keyword =
-    this.value.toLowerCase();
-
-    const rows =
-    document.querySelectorAll('#projectTable tr');
-
-    rows.forEach(row => {
-
-        row.style.display =
-        row.innerText.toLowerCase().includes(keyword)
-        ? ''
-        : 'none';
-
-    });
-
-});
-
-/* =========================
-   DATE
-========================= */
-
-document.getElementById('today').innerHTML =
-new Date().toLocaleDateString('vi-VN');
-
-/* =========================
-   AUTO REFRESH
-========================= */
-
-loadData();
-
-setInterval(() => {
-
-    loadData();
-
-}, 60000);
-
+    setInterval(fetchData, 30000);
+    window.onload = fetchData;
 </script>
-
 </body>
 </html>
