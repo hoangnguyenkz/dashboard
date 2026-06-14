@@ -679,7 +679,7 @@
                 <td style="color:rgba(255,255,255,0.85);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d[3]?.v || "—"}</td>
                 <td class="text-left" style="color:rgba(255,255,255,0.80);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item}</td>
                 <td>${item ? `<div class="bar-container"><span style="width:28px;font-family:var(--f-mono);font-size:13px;text-align:right;color:rgba(255,255,255,0.9);">${pct}%</span><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div>` : ""}</td>
-                <td style="font-family:var(--f-mono);font-size:16px;font-weight:600;color:rgba(255,255,255,0.9);">${d[7]?.f || "—"}</td>
+                <td style="font-family:var(--f-mono);font-size:12px;font-weight:600;color:rgba(255,255,255,0.9);">${d[7]?.f || "—"}</td>
                 <td>${item ? `<span class="st ${pct>=100?'st-done':(isLate?'st-late':'st-wip')}">${pct>=100?'DONE':(isLate?'LATE':'WORKING')}</span>` : ""}</td>
             </tr>`;
         }).join("");
