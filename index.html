@@ -142,7 +142,7 @@
 
         /* 2 bảng thống kê nằm ngang */
         .stats-row {
-            flex: 0 0 200px;
+            flex: 0 0 180px;
             display: flex;
             gap: 12px;
             min-height: 0;
@@ -231,8 +231,8 @@
         tbody tr:hover { background: rgba(96,200,240,0.08) !important; transition: background 0.15s; }
 
         #p-table td {
-            padding: 13px 6px;
-            font-size: 16px;
+            padding: 7px 6px;
+            font-size: 14px;
             font-weight: 500;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             text-align: center;
@@ -326,14 +326,14 @@
             .header-date { font-size: 14px; }
             .container { height: calc(100vh - 70px); padding: 16px; gap: 16px; }
             .col-left { padding: 20px; border-radius: 20px; }
-            .stats-row { flex: 0 0 220px; gap: 16px; }
+            .stats-row { flex: 0 0 195px; gap: 16px; }
             .sub-panel { padding: 14px; border-radius: 20px; }
             .panel-header { margin-bottom: 14px; padding-bottom: 12px; }
             .panel-title { font-size: 18px; gap: 10px; }
             .title-dot { width: 9px; height: 9px; }
             .badge-count { font-size: 15px; padding: 5px 14px; }
             th { font-size: 15px; padding: 12px 8px; letter-spacing: 0.8px; }
-            #p-table td { padding: 15px 10px; font-size: 20px; }
+            #p-table td { padding: 8px 10px; font-size: 15px; }
             .bar-bg { width: 80px; height: 10px; }
             .bar-container { gap: 8px; }
             .bar-container span { width: 50px !important; font-size: 18px !important; }
@@ -407,7 +407,7 @@
         @media (min-width: 768px) and (max-width: 1023px) {
             .container { padding: 8px; gap: 8px; }
             .col-left { padding: 12px; border-radius: 14px; }
-            .stats-row { flex: 0 0 170px; gap: 8px; }
+            .stats-row { flex: 0 0 155px; gap: 8px; }
             .sub-panel { border-radius: 14px; }
             th { font-size: 10px; padding: 7px 3px; }
             #p-table td { padding: 9px 4px; font-size: 12px; }
@@ -501,7 +501,7 @@
     const URL_GUARANTEE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Bao%20lanh`;
 
     let dataP = [], dataG = [], currentPage = 0;
-    const ROWS_PER_PAGE = 13;
+    const ROWS_PER_PAGE = 20;
 
     setInterval(() => {
         const n = new Date();
@@ -557,7 +557,7 @@
                 <td style="color:rgba(255,255,255,0.85);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d[3]?.v || "—"}</td>
                 <td class="text-left" style="color:rgba(255,255,255,0.80);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item}</td>
                 <td>${item ? `<div class="bar-container"><span style="width:28px;font-family:var(--f-mono);font-size:13px;text-align:right;color:rgba(255,255,255,0.9);">${pct}%</span><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div>` : ""}</td>
-                <td style="font-family:var(--f-mono);font-size:12px;font-weight:600;color:rgba(255,255,255,0.9);">${d[7]?.f || "—"}</td>
+                <td style="font-family:var(--f-mono);font-size:inherit;font-weight:600;color:rgba(255,255,255,0.9);">${d[7]?.f || "—"}</td>
                 <td>${item ? `<span class="st ${pct>=100?'st-done':(isLate?'st-late':'st-wip')}">${pct>=100?'DONE':(isLate?'LATE':'WORKING')}</span>` : ""}</td>
             </tr>`;
         }).join("");
