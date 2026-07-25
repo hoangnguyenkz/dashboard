@@ -600,6 +600,36 @@
   </div>
 </div>
 
+<!-- BULK PO UPDATE MODAL -->
+<div class="overlay" id="poUpdateModal">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h2>Cập nhật SL PO đặt hàng</h2>
+      <button class="modal-close" onclick="closeModal('poUpdateModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="poUpdProjectId">
+      <p style="font-size:12.5px; color:var(--ink-600); line-height:1.7;">
+        Chọn hàng hóa cần đặt PO và nhập số lượng đặt đợt này. Có thể chọn nhiều hàng hóa cùng lúc.
+      </p>
+      <div class="grid-3">
+        <div class="field"><label>Số PO</label><input id="poUpdCode" placeholder="PO-2026-xxx"></div>
+        <div class="field"><label>Ngày đặt</label><input type="date" id="poUpdDate"></div>
+        <div class="field"></div>
+      </div>
+      <div class="subhead">Chọn hàng hóa &amp; số lượng đặt PO</div>
+      <table class="mini-table" id="poUpdTable">
+        <thead><tr><th style="width:28px;"></th><th>Sản phẩm</th><th>Hệ thống</th><th class="num">SL hợp đồng</th><th class="num">SL PO đã đặt</th><th class="num" style="width:120px;">SL đặt đợt này</th></tr></thead>
+        <tbody id="poUpdTableBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('poUpdateModal')">Hủy</button>
+      <button class="btn btn-primary" onclick="submitPOUpdate()">Lưu cập nhật PO</button>
+    </div>
+  </div>
+</div>
+
 <!-- USERS MODAL -->
 <div class="overlay" id="usersModal">
   <div class="modal wide">
@@ -927,6 +957,7 @@ function renderMain(){
         ${can('manageProjects') ? `<button class="btn btn-ghost btn-sm" onclick="openProjectModal('${proj.id}')">Sửa dự án</button>` : ''}
         ${can('deleteProjects') ? `<button class="btn btn-danger btn-sm" onclick="deleteProject('${proj.id}')">Xóa dự án</button>` : ''}
         ${can('manageDeliveries') ? `<button class="btn btn-ghost btn-sm" onclick="openDeliveryUpdateModal('${proj.id}')">🚚 Cập nhật giao hàng</button>` : ''}
+        ${can('managePO') ? `<button class="btn btn-ghost btn-sm" onclick="openPOUpdateModal('${proj.id}')">📋 Cập nhật PO đặt hàng</button>` : ''}
         <button class="btn btn-ghost btn-sm" onclick="openDeliveryListModal('${proj.id}')">📦 Đợt giao hàng</button>
         ${can('manageItems') ? `<button class="btn btn-ghost btn-sm" onclick="openImportModal('${proj.id}')">⇪ Nhập từ Excel</button>` : ''}
         ${can('manageItems') ? `<button class="btn btn-primary btn-sm" onclick="openItemModal(null,'${proj.id}')">+ Thêm hàng hóa</button>` : ''}
@@ -1547,6 +1578,56 @@ function submitDeliveryUpdate(){
   closeModal('deliveryUpdateModal');
   renderMain();
   toast(`Đã cập nhật giao hàng cho ${count} hàng hóa.`);
+}
+
+function openPOUpdateModal(projectId){
+  if(!can('managePO')){ toast('Bạn không có quyền cập nhật PO đặt hàng.', true); return; }
+  const items = state.items.filter(i=>i.projectId===projectId);
+  if(items.length === 0){ toast('Dự án chưa có hàng hóa nào để cập nhật PO.', true); return; }
+  document.getElementById('poUpdProjectId').value = projectId;
+  document.getElementById('poUpdCode').value = '';
+  document.getElementById('poUpdDate').value = '';
+  document.getElementById('poUpdTableBody').innerHTML = items.map(it=>{
+    const poQty = itemPOTotal(it.id);
+    return `
+      <tr>
+        <td class="center"><input type="checkbox" class="poUpdCheck" data-item="${it.id}"></td>
+        <td>
+          <div class="row-name">${it.name}</div>
+          <div class="row-code">${it.code||''}</div>
+        </td>
+        <td>${it.system||'—'}</td>
+        <td class="num">${fmtNum(it.qty)} ${it.unit||''}</td>
+        <td class="num">${fmtNum(poQty)} ${it.unit||''}</td>
+        <td class="num"><input type="number" min="0" step="any" class="poUpdQty" data-item="${it.id}" style="width:100px; text-align:right;" placeholder="0"></td>
+      </tr>
+    `;
+  }).join('');
+  openModal('poUpdateModal');
+}
+function submitPOUpdate(){
+  const poCode = document.getElementById('poUpdCode').value.trim() || 'PO đặt hàng';
+  const date = document.getElementById('poUpdDate').value;
+  const rows = document.querySelectorAll('#poUpdTableBody tr');
+  let count = 0;
+  const newPOs = [];
+  rows.forEach(tr=>{
+    const checked = tr.querySelector('.poUpdCheck').checked;
+    const qty = Number(tr.querySelector('.poUpdQty').value) || 0;
+    const itemId = tr.querySelector('.poUpdCheck').dataset.item;
+    if(checked && qty > 0){
+      const newPO = touch({id:uid('po'), itemId, poCode, date, qty});
+      state.poBatches.push(newPO);
+      newPOs.push(newPO);
+      count++;
+    }
+  });
+  if(count === 0){ toast('Vui lòng chọn ít nhất 1 hàng hóa và nhập số lượng đặt PO > 0.', true); return; }
+  fbBulkPut('poBatches', newPOs);
+  saveState();
+  closeModal('poUpdateModal');
+  renderMain();
+  toast(`Đã cập nhật PO đặt hàng cho ${count} hàng hóa.`);
 }
 
 /* ================= DELIVERY LIST / FILTER / EXPORT ================= */
